@@ -1,93 +1,79 @@
 class RssReaderController
   def initialize
-    @data = []
+    @text_source = NSTextField.alloc.initWithFrame(NSMakeRect(11, 110, 390, 25))
+    @text_source.stringValue = 'source_folder'
+    @text_source.bezelStyle = NSRoundedBezelStyle
+    @text_source.autoresizingMask = NSViewMinXMargin|NSViewMinYMargin|NSViewWidthSizable
+    app.window.contentView.addSubview(@text_source)
 
-    @text_url = NSTextField.alloc.initWithFrame(NSMakeRect(11, 330, 400, 22))
-    @text_url.stringValue = "http://images.apple.com/main/rss/hotnews/hotnews.rss"
-    @text_url.autoresizingMask = NSViewMinXMargin|NSViewMinYMargin|NSViewWidthSizable
-    app.window.contentView.addSubview(@text_url)
+    @text_destination = NSTextField.alloc.initWithFrame(NSMakeRect(11, 80, 390, 25))
+    @text_destination.stringValue = 'destination_file.xls'
+    @text_destination.bezelStyle = NSRoundedBezelStyle
+    @text_destination.autoresizingMask = NSViewMinXMargin|NSViewMinYMargin|NSViewWidthSizable
+    app.window.contentView.addSubview(@text_destination)
 
-    button = NSButton.alloc.initWithFrame(NSMakeRect(415, 324, 61, 32))
-    button.title = "Get"
-    button.action = "retrieveRSSFeed:"
+    button = NSButton.alloc.initWithFrame(NSMakeRect(415, 80, 61, 55))
+    button.setButtonType NSToggleButton
+    button.title = 'Start'
+    button.alternateTitle = 'Stop'
+    button.setState NSOffState
+    button.action = 'toggleProgress:'
     button.target = self
     button.bezelStyle = NSRoundedBezelStyle
     button.autoresizingMask = NSViewMinXMargin|NSViewMinYMargin
     app.window.contentView.addSubview(button)
 
-    scroll_view = NSScrollView.alloc.initWithFrame(NSMakeRect(0, 0, 480, 322))
-    scroll_view.autoresizingMask = NSViewMinXMargin|NSViewMinYMargin|NSViewWidthSizable|NSViewHeightSizable
-    scroll_view.hasVerticalScroller = true
-    app.window.contentView.addSubview(scroll_view)
+    @indicator = NSProgressIndicator.alloc.initWithFrame(NSMakeRect(15, 40, 450, 10))
+    @indicator.autoresizingMask = NSViewMinXMargin|NSViewMinYMargin|NSViewWidthSizable
+    app.window.contentView.addSubview(@indicator)
 
-    @table_view = NSTableView.alloc.init
-    column_title = NSTableColumn.alloc.initWithIdentifier("title")
-    column_title.editable = false
-    column_title.headerCell.setTitle("Title")
-    column_title.width = 400
-    @table_view.addTableColumn(column_title)
-
-    column_date = NSTableColumn.alloc.initWithIdentifier("date")
-    column_date.editable = false
-    column_date.headerCell.setTitle("Date")
-    column_date.width = 400
-    @table_view.addTableColumn(column_date)
-
-    @table_view.delegate = self
-    @table_view.dataSource = self
-    @table_view.autoresizingMask = NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin
-    @table_view.target = self
-    @table_view.doubleAction = :"doubleClickColumn:"
-
-    scroll_view.setDocumentView(@table_view)
+    @progress = NSTextView.alloc.initWithFrame(NSMakeRect(205, 15, 80, 20))
+    @progress.drawsBackground = false
+    @progress.selectable = false
+    @progress.setString 'Not Started'
+    # @progress.editable = false
+    app.window.contentView.addSubview(@progress)
   end
 
   def app
     NSApp.delegate
   end
 
-  def loadRSS(url)
-    @data = []
-    parser = RSSParser.alloc.initWithDelegate(self, URL:url)
-    parser.parse
-  end
+  # def loadRSS(url)
+  #   @data = []
+  #   parser = RSSParser.alloc.initWithDelegate(self, URL:url)
+  #   parser.parse
+  # end
 
-  def retrieveRSSFeed(sender)
-    loadRSS(@text_url.stringValue)
-  end
+  # def retrieveRSSFeed(sender)
+  #   loadRSS(@text_url.stringValue)
+  # end
 
-  def doubleClickColumn(sender)
-    return if @data.empty?
-    row = @table_view.clickedRow
-    if url = @data[row]['link']
-      NSWorkspace.sharedWorkspace.openURL(NSURL.URLWithString(url))
+  def toggleProgress(sender)
+    if sender.state == NSOffState
+      @timer.invalidate
+      @progress.setString 'Stopped'
+      @indicator.stopAnimation(self)
+    else
+      @duration = 0
+      @progress.setString 'Starting...'
+      @indicator.startAnimation(self)
+      @timer = NSTimer.scheduledTimerWithTimeInterval(0.1,
+                                                      :target   => self,
+                                                      :selector => 'timerFired',
+                                                      :userInfo => nil,
+                                                      :repeats  => true)
     end
   end
 
-  def parserDidEndItem(item)
-    @data << item
-  end
-
-  def parserDidEndDocument
-    @table_view.reloadData
-  end
-
-  def numberOfRowsInTableView(aTableView)
-    @data.size
-  end
-
-  def tableView(aTableView,
-                objectValueForTableColumn: aTableColumn,
-                row: rowIndex)
-    case aTableColumn.identifier
-      when "title"
-        @data[rowIndex]['title']
-      when "date"
-        ['dc:date', 'pubDate', 'updated'].each do |d|
-          if item = @data[rowIndex][d]
-            return item
-          end
-        end
+  def timerFired
+    @progress.setString "   #{@duration}%"
+    @duration+=2
+    if @duration == 100
+      @timer.invalidate
+      @progress.setString 'Completed!'
+      @indicator.stopAnimation(self)
     end
   end
+
 end
