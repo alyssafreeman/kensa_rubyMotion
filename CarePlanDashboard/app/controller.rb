@@ -25,13 +25,13 @@ class RssReaderController
 
     @indicator = NSProgressIndicator.alloc.initWithFrame(NSMakeRect(15, 40, 450, 10))
     @indicator.autoresizingMask = NSViewMinXMargin|NSViewMinYMargin|NSViewWidthSizable
+    @indicator.setDisplayedWhenStopped(FALSE)
     app.window.contentView.addSubview(@indicator)
 
     @progress = NSTextView.alloc.initWithFrame(NSMakeRect(205, 15, 80, 20))
     @progress.drawsBackground = false
     @progress.selectable = false
     @progress.setString 'Not Started'
-    # @progress.editable = false
     app.window.contentView.addSubview(@progress)
   end
 
@@ -57,6 +57,8 @@ class RssReaderController
     else
       @duration = 0
       @progress.setString 'Starting...'
+      puts "Source Folder: #{@text_source.stringValue}"
+      puts "Destination File: #{@text_destination.stringValue}"
       @indicator.startAnimation(self)
       @timer = NSTimer.scheduledTimerWithTimeInterval(0.1,
                                                       :target   => self,

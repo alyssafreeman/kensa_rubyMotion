@@ -14,6 +14,7 @@ class AppDelegate
                                                  backing: NSBackingStoreBuffered,
                                                  defer: false)
     @window.title = NSBundle.mainBundle.infoDictionary['CFBundleName']
+    @window.setBackgroundColor(NSColor.colorWithRed(0.921, green:0.921, blue:0.921, alpha:1.0))
     @window.orderFrontRegardless
   end
 end
