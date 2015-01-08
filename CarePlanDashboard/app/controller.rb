@@ -49,6 +49,19 @@ class RssReaderController
   #   loadRSS(@text_url.stringValue)
   # end
 
+  def processXML
+    # probably something like this....
+    @data = []
+    parser = XMLProcessor.alloc.initWithDelegate(self, SOURCE:@text_source.stringValue, DEST:@text_destination.stringValue)
+    parser.parse
+  end
+
+  def validate_input_validity
+    return false if @text_source.stringValue.nil?
+    return false if @text_destination.stringValue.nil?
+    true
+  end
+
   def toggleProgress(sender)
     if sender.state == NSOffState
       @timer.invalidate
@@ -60,6 +73,9 @@ class RssReaderController
       puts "Source Folder: #{@text_source.stringValue}"
       puts "Destination File: #{@text_destination.stringValue}"
       @indicator.startAnimation(self)
+      # if validate_input_validity
+      #   processXML
+      # end
       @timer = NSTimer.scheduledTimerWithTimeInterval(0.1,
                                                       :target   => self,
                                                       :selector => 'timerFired',
@@ -77,5 +93,4 @@ class RssReaderController
       @indicator.stopAnimation(self)
     end
   end
-
 end
