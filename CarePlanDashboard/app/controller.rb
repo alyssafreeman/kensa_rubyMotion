@@ -91,6 +91,7 @@ class RssReaderController
       @timer.invalidate
       @progress.setString 'Completed!'
       @indicator.stopAnimation(self)
+      toggleProgress(self)
     end
   end
 end
