@@ -7,7 +7,6 @@ require 'zlib' #Needs to live in File Manager class.
 #Common classes.
 require_relative './dm'  #Manages the downloading, knows nothing about the dmApp UI and Tk.
 
-
 #=======================================================================================================================
 
 #User Interface gems
@@ -47,53 +46,43 @@ if __FILE__ == $0  #This script code is executed when running this file.
 
   #Start building user interface.
   root = TkRoot.new {title 'Care Plan Dashboard'}
-  content = Tk::Tile::Frame.new(root) {padding '3 3 12 12'}
-  #------------------------------------------------------------
-  current_row = -1
-  #---------------------------------------------
-  current_row = current_row + 1
-  lbl_space_1 = Tk::Tile::Label.new(content) {text ' '}.grid( :row => current_row, :column => 0)
-  current_row = current_row + 1
-  sep_1 = Tk::Tile::Separator.new(content) { orient 'horizontal'}.grid( :row => current_row, :columnspan => 8, :sticky => 'we')
+  content = Tk::Tile::Frame.new(root) {padding '15 10 15 10'}
+  current_row = 0
+  sep_1 = Tk::Tile::Separator.new(content) { orient 'horizontal'}.grid( :row => current_row, :columnspan => 8, :sticky => 'we'); current_row += 1
+  lbl_space_1 = Tk::Tile::Label.new(content) {text ' '}.grid( :row => current_row, :column => 0); current_row += 1
+  current_row += 1
 
-  current_row = current_row + 1
   #Source folder widgets. Label, TextBox, and Button that activates the ChooseDir standard dialog.
   Tk::Tile::Label.new(content) {text 'Source Directory'}.grid( :column => 0, :row => current_row, :sticky => 'e')
   Tk::Tile::Entry.new(content) {textvariable oDM.config.data_dir}.grid( :column => 1, :columnspan => 7, :row => current_row, :sticky => 'we' )
   Tk::Tile::Button.new(content) {text 'Select Dir'; width 10; command {oDM.config.data_dir.value=select_data_dir(oDM)}}.grid( :column => 7, :row => current_row, :sticky => 'e')
+  current_row += 1
 
-  current_row = current_row + 1
-  # Long textbox for Data URL.  Also supports entry of job UUID.
+  # Data URL
   Tk::Tile::Label.new(content) {text 'Output File Name'}.grid( :column => 0, :row => current_row, :sticky => 'e')
   Tk::Tile::Entry.new(content) {width 70; textvariable oDM.config.output_file_name}.grid( :column => 1, :columnspan => 7, :row => current_row, :sticky => 'we' )
+  current_row += 1
 
-  current_row = current_row + 1
-  #Download Progress Bar details.
-  progress_bar_download = Tk::Tile::Progressbar.new(content) {orient 'horizontal'; }
+  #Progress Bar details
+  lbl_space_2 = Tk::Tile::Label.new(content) {text ' '}.grid( :row => current_row, :column => 0); current_row += 1
+  progress_bar_download = Tk::Tile::Progressbar.new(content) {orient 'horizontal'; mode 'determinate'}
   progress_bar_download.maximum = 100
   progress_bar_download.variable = UI_progress_bar_download
   progress_bar_download.grid :row => current_row, :column => 0, :columnspan => 8,:sticky => 'we'
+  current_row += 1
+  lbl_space_3 = Tk::Tile::Label.new(content) {text ' '}.grid( :row => current_row, :column => 0); current_row += 1
 
-  #---------------------------------------------
-  current_row = current_row + 1
-  lbl_space_2 = Tk::Tile::Label.new(content) {text ' '}.grid( :row => current_row, :column => 0)
-  current_row = current_row + 1
+  #Button bar at the bottom
   sep_2 = Tk::Tile::Separator.new(content) { orient 'horizontal'}.grid( :row => current_row, :columnspan => 8, :sticky => 'we')
-
-  #-----------------------------------------
-  current_row = current_row + 1
-  Tk::Tile::Button.new(content) {text 'Save Settings'; width 12; command {oDM.config.save_config}}.grid( :column => 4, :columnspan => 1, :row => current_row, :sticky => 'w')
+  Tk::Tile::Button.new(content) {text 'Save as Default Settings'; width 20; command {oDM.config.save_config}}.grid( :column => 4, :columnspan => 1, :row => current_row, :sticky => 'w')
   Tk::Tile::Button.new(content) {text 'Exit'; width 12; command {exit_app(oDM,t_ui)}}.grid( :column => 0, :columnspan => 1, :row => current_row)
-
   #Tweak Downlaod button depending on OS.
   if oDM.os == :windows then
     btn_width = 20
   else
     btn_width = 12
   end
-
-  Tk::Tile::Button.new(content) {text 'Start'; width btn_width; command {oDM.go = true }}.grid( :column => 7, :columnspan => 1, :row => current_row, :sticky => 'e')
-
+  Tk::Tile::Button.new(content) {text 'Start'; width btn_width; command {oDM.go = true }}.grid( :column => 7, :columnspan => 1, :row => current_row, :sticky => 'e'); current_row += 1 
   #-----------------------------------------
   content.grid :column => 0, :row => 0, :sticky => 'nsew'
 
@@ -106,7 +95,6 @@ if __FILE__ == $0  #This script code is executed when running this file.
       UI_progress_bar_download.value = (oDM.files_local.to_f/oDM.files_total.to_f) * 100
     end
   }
-
   #-------------------------------------------------------------------------------------------------------------------
   #Timer hits tick loop every interval--------------------------------------------------------------------------------
   timer = TkTimer.new(500, -1, tick )
