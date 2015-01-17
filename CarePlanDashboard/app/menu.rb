@@ -44,34 +44,6 @@ class AppDelegate
       addItemWithTitle('Select All', action: 'selectAll:', keyEquivalent: 'a')
     end
 
-    fontMenu = createMenu('Font') do
-      addItemWithTitle('Show Fonts', action: 'orderFrontFontPanel:', keyEquivalent: 't')
-      addItemWithTitle('Bold', action: 'addFontTrait:', keyEquivalent: 'b')
-      addItemWithTitle('Italic', action: 'addFontTrait:', keyEquivalent: 'i')
-      addItemWithTitle('Underline', action: 'underline:', keyEquivalent: 'u')
-      addItem(NSMenuItem.separatorItem)
-      addItemWithTitle('Bigger', action: 'modifyFont:', keyEquivalent: '+')
-      addItemWithTitle('Smaller', action: 'modifyFont:', keyEquivalent: '-')
-    end
-
-    textMenu = createMenu('Text') do
-      addItemWithTitle('Align Left', action: 'alignLeft:', keyEquivalent: '{')
-      addItemWithTitle('Center', action: 'alignCenter:', keyEquivalent: '|')
-      addItemWithTitle('Justify', action: 'alignJustified:', keyEquivalent: '')
-      addItemWithTitle('Align Right', action: 'alignRight:', keyEquivalent: '}')
-      addItem(NSMenuItem.separatorItem)
-      addItemWithTitle('Show Ruler', action: 'toggleRuler:', keyEquivalent: '')
-      item = addItemWithTitle('Copy Ruler', action: 'copyRuler:', keyEquivalent: 'c')
-      item.keyEquivalentModifierMask = NSCommandKeyMask|NSControlKeyMask
-      item = addItemWithTitle('Paste Ruler', action: 'pasteRuler:', keyEquivalent: 'v')
-      item.keyEquivalentModifierMask = NSCommandKeyMask|NSControlKeyMask
-    end
-
-    addMenu('Format') do
-      addItem fontMenu
-      addItem textMenu
-    end
-
     addMenu('View') do
       item = addItemWithTitle('Show Toolbar', action: 'toggleToolbarShown:', keyEquivalent: 't')
       item.keyEquivalentModifierMask = NSCommandKeyMask|NSAlternateKeyMask
